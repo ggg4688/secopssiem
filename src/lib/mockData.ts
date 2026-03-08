@@ -1,6 +1,6 @@
 // Types
 export type Severity = 'critical' | 'high' | 'medium' | 'low';
-export type AlertStatus = 'new' | 'investigating' | 'incident' | 'closed';
+export type AlertStatus = 'new' | 'acknowledged' | 'investigating' | 'incident' | 'closed';
 export type AssetCriticality = 'high' | 'medium' | 'low';
 export type AssetType = 'linux-server' | 'windows-server' | 'web-app' | 'database' | 'firewall' | 'workstation';
 

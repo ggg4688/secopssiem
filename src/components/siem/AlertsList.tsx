@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { SeverityBadge, StatusBadge, MitreBadge, ConfidenceMeter, AssetTypeIcon, CriticalityBadge } from './Badges';
 import {
   Shield, Clock, User, Globe, Server, ChevronRight,
-  CheckCircle, AlertTriangle, Ban, UserX, FileText, X
+  CheckCircle, AlertTriangle, Ban, UserX, FileText, X, Search
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { useState } from 'react';
@@ -29,7 +29,7 @@ export function AlertsList() {
           <h2 className="text-lg font-semibold">Alerts</h2>
           <span className="text-sm text-muted-foreground">({filteredAlerts.length})</span>
           <div className="ml-auto flex gap-1">
-            {(['all', 'new', 'investigating', 'incident', 'closed'] as const).map((status) => (
+            {(['all', 'new', 'acknowledged', 'investigating', 'incident', 'closed'] as const).map((status) => (
               <Button
                 key={status}
                 variant={statusFilter === status ? 'default' : 'ghost'}
@@ -119,7 +119,10 @@ function AlertCard({
       </div>
 
       <div className="flex items-center justify-between">
-        <MitreBadge techniqueId={alert.mitre.techniqueId} techniqueName={alert.mitre.techniqueName} />
+        <div className="flex items-center gap-3">
+          <MitreBadge techniqueId={alert.mitre.techniqueId} techniqueName={alert.mitre.techniqueName} />
+          <span className="text-xs text-muted-foreground font-mono">{alert.confidence}%</span>
+        </div>
         <ChevronRight className="h-4 w-4 text-muted-foreground" />
       </div>
     </div>
@@ -129,6 +132,7 @@ function AlertCard({
 function InvestigationPanel({ alert, onClose }: { alert: Alert; onClose: () => void }) {
   const {
     acknowledgeAlert,
+    updateAlertStatus,
     escalateToIncident,
     closeAlert,
     simulateBlockIP,
@@ -173,12 +177,9 @@ function InvestigationPanel({ alert, onClose }: { alert: Alert; onClose: () => v
         <div className="siem-panel">
           <h4 className="text-xs text-muted-foreground uppercase tracking-wide mb-2">Threat Classification</h4>
           <div className="flex items-center gap-3">
-            <span className="mitre-badge text-sm">{alert.mitre.techniqueId}</span>
-            <div>
-              <p className="font-medium">{alert.mitre.techniqueName}</p>
-              <p className="text-sm text-muted-foreground">{alert.mitre.tactic}</p>
-            </div>
+            <MitreBadge techniqueId={alert.mitre.techniqueId} techniqueName={alert.mitre.techniqueName} showLink />
           </div>
+          <p className="text-sm text-muted-foreground mt-1">{alert.mitre.tactic}</p>
         </div>
 
         {/* Asset Information */}
@@ -285,7 +286,13 @@ function InvestigationPanel({ alert, onClose }: { alert: Alert; onClose: () => v
             Acknowledge
           </Button>
         )}
-        {(alert.status === 'new' || alert.status === 'investigating') && (
+        {alert.status === 'acknowledged' && (
+          <Button onClick={() => updateAlertStatus(alert.id, 'investigating')} className="flex-1" variant="secondary">
+            <Search className="h-4 w-4 mr-2" />
+            Investigate
+          </Button>
+        )}
+        {(alert.status === 'new' || alert.status === 'acknowledged' || alert.status === 'investigating') && (
           <Button
             variant="destructive"
             onClick={() => escalateToIncident(alert.id)}

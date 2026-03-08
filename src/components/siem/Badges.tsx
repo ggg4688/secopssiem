@@ -23,6 +23,7 @@ export function SeverityBadge({ severity, className }: { severity: Severity; cla
 export function StatusBadge({ status, className }: { status: AlertStatus; className?: string }) {
   const styles = {
     new: 'bg-blue-500/20 text-blue-400 border border-blue-500/30',
+    acknowledged: 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/30',
     investigating: 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/30',
     incident: 'bg-red-500/20 text-red-400 border border-red-500/30',
     closed: 'bg-gray-500/20 text-gray-400 border border-gray-500/30',
@@ -49,11 +50,23 @@ export function CriticalityBadge({ criticality, className }: { criticality: Asse
   );
 }
 
-export function MitreBadge({ techniqueId, techniqueName }: { techniqueId: string; techniqueName: string }) {
+export function MitreBadge({ techniqueId, techniqueName, showLink = false }: { techniqueId: string; techniqueName: string; showLink?: boolean }) {
+  const mitreUrl = `https://attack.mitre.org/techniques/${techniqueId.replace('.', '/')}/`;
   return (
     <div className="flex items-center gap-2">
-      <span className="mitre-badge">{techniqueId}</span>
+      {showLink ? (
+        <a href={mitreUrl} target="_blank" rel="noopener noreferrer" className="mitre-badge hover:opacity-80 transition-opacity">
+          {techniqueId}
+        </a>
+      ) : (
+        <span className="mitre-badge">{techniqueId}</span>
+      )}
       <span className="text-xs text-muted-foreground">{techniqueName}</span>
+      {showLink && (
+        <a href={mitreUrl} target="_blank" rel="noopener noreferrer" className="text-xs text-primary hover:underline">
+          ATT&CK ↗
+        </a>
+      )}
     </div>
   );
 }
