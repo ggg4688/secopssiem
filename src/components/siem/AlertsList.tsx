@@ -285,7 +285,13 @@ function InvestigationPanel({ alert, onClose }: { alert: Alert; onClose: () => v
             Acknowledge
           </Button>
         )}
-        {(alert.status === 'new' || alert.status === 'investigating') && (
+        {alert.status === 'acknowledged' && (
+          <Button onClick={() => updateAlertStatus(alert.id, 'investigating')} className="flex-1" variant="secondary">
+            <Search className="h-4 w-4 mr-2" />
+            Investigate
+          </Button>
+        )}
+        {(alert.status === 'new' || alert.status === 'acknowledged' || alert.status === 'investigating') && (
           <Button
             variant="destructive"
             onClick={() => escalateToIncident(alert.id)}
