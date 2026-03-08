@@ -4,10 +4,9 @@ import { useNavigate } from 'react-router-dom';
 import { useTheme } from 'next-themes';
 import { Button } from '@/components/ui/button';
 import {
-  Shield, Activity, AlertTriangle, FileText, RefreshCw,
-  LayoutDashboard, Clock, LogOut, Sun, Moon
+  Shield, Activity, AlertTriangle, FileText,
+  LayoutDashboard, LogOut, Sun, Moon, Radar
 } from 'lucide-react';
-import { format } from 'date-fns';
 
 export function Header() {
   const { activeTab, setActiveTab, refreshData, alerts } = useSIEMStore();
