@@ -119,7 +119,10 @@ function AlertCard({
       </div>
 
       <div className="flex items-center justify-between">
-        <MitreBadge techniqueId={alert.mitre.techniqueId} techniqueName={alert.mitre.techniqueName} />
+        <div className="flex items-center gap-3">
+          <MitreBadge techniqueId={alert.mitre.techniqueId} techniqueName={alert.mitre.techniqueName} />
+          <span className="text-xs text-muted-foreground font-mono">{alert.confidence}%</span>
+        </div>
         <ChevronRight className="h-4 w-4 text-muted-foreground" />
       </div>
     </div>
