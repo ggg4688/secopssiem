@@ -160,8 +160,17 @@ export function ThreatIntel() {
         {/* IOC Database */}
         <TabsContent value="ioc">
           <Card>
-            <CardHeader>
+           <CardHeader>
               <CardTitle className="text-base">Indicators of Compromise</CardTitle>
+              <div className="relative mt-2">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Search IOC indicators..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-9"
+                />
+              </div>
             </CardHeader>
             <CardContent>
               <Table>
@@ -176,7 +185,13 @@ export function ThreatIntel() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {mockIOCs.map((ioc) => (
+                  {filteredIOCs.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={6} className="text-center text-muted-foreground py-8">
+                        No indicators match your search.
+                      </TableCell>
+                    </TableRow>
+                  ) : filteredIOCs.map((ioc) => (
                     <TableRow key={ioc.id}>
                       <TableCell className="font-mono text-sm">{ioc.indicator}</TableCell>
                       <TableCell>
