@@ -176,12 +176,9 @@ function InvestigationPanel({ alert, onClose }: { alert: Alert; onClose: () => v
         <div className="siem-panel">
           <h4 className="text-xs text-muted-foreground uppercase tracking-wide mb-2">Threat Classification</h4>
           <div className="flex items-center gap-3">
-            <span className="mitre-badge text-sm">{alert.mitre.techniqueId}</span>
-            <div>
-              <p className="font-medium">{alert.mitre.techniqueName}</p>
-              <p className="text-sm text-muted-foreground">{alert.mitre.tactic}</p>
-            </div>
+            <MitreBadge techniqueId={alert.mitre.techniqueId} techniqueName={alert.mitre.techniqueName} showLink />
           </div>
+          <p className="text-sm text-muted-foreground mt-1">{alert.mitre.tactic}</p>
         </div>
 
         {/* Asset Information */}
