@@ -29,7 +29,7 @@ export function AlertsList() {
           <h2 className="text-lg font-semibold">Alerts</h2>
           <span className="text-sm text-muted-foreground">({filteredAlerts.length})</span>
           <div className="ml-auto flex gap-1">
-            {(['all', 'new', 'investigating', 'incident', 'closed'] as const).map((status) => (
+            {(['all', 'new', 'acknowledged', 'investigating', 'incident', 'closed'] as const).map((status) => (
               <Button
                 key={status}
                 variant={statusFilter === status ? 'default' : 'ghost'}
