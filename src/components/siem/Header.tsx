@@ -70,16 +70,6 @@ export function Header() {
             </div>
           )}
 
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <Clock className="h-4 w-4" />
-            <span>{format(new Date(), 'HH:mm:ss')}</span>
-          </div>
-
-          <Button variant="outline" size="sm" onClick={refreshData}>
-            <RefreshCw className="h-4 w-4 mr-2" />
-            Refresh
-          </Button>
-
           <Button
             variant="ghost"
             size="icon"

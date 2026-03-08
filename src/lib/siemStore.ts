@@ -11,7 +11,7 @@ interface SIEMState {
   incidents: Incident[];
   metrics: SOCMetrics;
   selectedAlertId: string | null;
-  activeTab: 'dashboard' | 'logs' | 'alerts' | 'incidents';
+  activeTab: 'dashboard' | 'logs' | 'alerts' | 'incidents' | 'threat-intel';
   
   // Actions
   setActiveTab: (tab: SIEMState['activeTab']) => void;
