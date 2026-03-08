@@ -1,9 +1,10 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Database, Rss, GitBranch, Globe, Mail, FileDigit, Server } from 'lucide-react';
+import { Database, Rss, GitBranch, Globe, Mail, FileDigit, Server, Search } from 'lucide-react';
 
 // IOC Mock Data
 type IOCType = 'IP Address' | 'Domain' | 'File Hash' | 'Email';
@@ -94,8 +95,19 @@ function formatDateTime(d: Date) {
 }
 
 export function ThreatIntel() {
+  const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState('ioc');
   const totalIOCs = mockIOCs.length;
+
+  const filteredIOCs = useMemo(() => {
+    if (!searchQuery.trim()) return mockIOCs;
+    const q = searchQuery.toLowerCase();
+    return mockIOCs.filter(ioc =>
+      ioc.indicator.toLowerCase().includes(q) ||
+      ioc.type.toLowerCase().includes(q) ||
+      ioc.source.toLowerCase().includes(q)
+    );
+  }, [searchQuery]);
   const totalFeeds = mockFeeds.length;
 
   return (
@@ -148,8 +160,17 @@ export function ThreatIntel() {
         {/* IOC Database */}
         <TabsContent value="ioc">
           <Card>
-            <CardHeader>
+           <CardHeader>
               <CardTitle className="text-base">Indicators of Compromise</CardTitle>
+              <div className="relative mt-2">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Search IOC indicators..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-9"
+                />
+              </div>
             </CardHeader>
             <CardContent>
               <Table>
@@ -164,7 +185,13 @@ export function ThreatIntel() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {mockIOCs.map((ioc) => (
+                  {filteredIOCs.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={6} className="text-center text-muted-foreground py-8">
+                        No indicators match your search.
+                      </TableCell>
+                    </TableRow>
+                  ) : filteredIOCs.map((ioc) => (
                     <TableRow key={ioc.id}>
                       <TableCell className="font-mono text-sm">{ioc.indicator}</TableCell>
                       <TableCell>
