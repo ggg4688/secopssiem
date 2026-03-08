@@ -4,10 +4,9 @@ import { useNavigate } from 'react-router-dom';
 import { useTheme } from 'next-themes';
 import { Button } from '@/components/ui/button';
 import {
-  Shield, Activity, AlertTriangle, FileText, RefreshCw,
-  LayoutDashboard, Clock, LogOut, Sun, Moon
+  Shield, Activity, AlertTriangle, FileText,
+  LayoutDashboard, LogOut, Sun, Moon, Radar
 } from 'lucide-react';
-import { format } from 'date-fns';
 
 export function Header() {
   const { activeTab, setActiveTab, refreshData, alerts } = useSIEMStore();
@@ -23,6 +22,7 @@ export function Header() {
     { id: 'alerts' as const, label: 'Alerts', icon: AlertTriangle, badge: newAlertsCount },
     { id: 'logs' as const, label: 'Logs', icon: Activity },
     { id: 'incidents' as const, label: 'Incidents', icon: FileText },
+    { id: 'threat-intel' as const, label: 'Threat Intel', icon: Radar },
   ];
 
   const handleLogout = () => {
@@ -69,16 +69,6 @@ export function Header() {
               </span>
             </div>
           )}
-
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <Clock className="h-4 w-4" />
-            <span>{format(new Date(), 'HH:mm:ss')}</span>
-          </div>
-
-          <Button variant="outline" size="sm" onClick={refreshData}>
-            <RefreshCw className="h-4 w-4 mr-2" />
-            Refresh
-          </Button>
 
           <Button
             variant="ghost"
