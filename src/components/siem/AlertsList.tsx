@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { SeverityBadge, StatusBadge, MitreBadge, ConfidenceMeter, AssetTypeIcon, CriticalityBadge } from './Badges';
 import {
   Shield, Clock, User, Globe, Server, ChevronRight,
-  CheckCircle, AlertTriangle, Ban, UserX, FileText, X
+  CheckCircle, AlertTriangle, Ban, UserX, FileText, X, Search
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { useState } from 'react';

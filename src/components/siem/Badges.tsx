@@ -50,11 +50,23 @@ export function CriticalityBadge({ criticality, className }: { criticality: Asse
   );
 }
 
-export function MitreBadge({ techniqueId, techniqueName }: { techniqueId: string; techniqueName: string }) {
+export function MitreBadge({ techniqueId, techniqueName, showLink = false }: { techniqueId: string; techniqueName: string; showLink?: boolean }) {
+  const mitreUrl = `https://attack.mitre.org/techniques/${techniqueId.replace('.', '/')}/`;
   return (
     <div className="flex items-center gap-2">
-      <span className="mitre-badge">{techniqueId}</span>
+      {showLink ? (
+        <a href={mitreUrl} target="_blank" rel="noopener noreferrer" className="mitre-badge hover:opacity-80 transition-opacity">
+          {techniqueId}
+        </a>
+      ) : (
+        <span className="mitre-badge">{techniqueId}</span>
+      )}
       <span className="text-xs text-muted-foreground">{techniqueName}</span>
+      {showLink && (
+        <a href={mitreUrl} target="_blank" rel="noopener noreferrer" className="text-xs text-primary hover:underline">
+          ATT&CK ↗
+        </a>
+      )}
     </div>
   );
 }

@@ -90,8 +90,17 @@ export function Header() {
           </Button>
 
           {user && (
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-muted-foreground">{user.username}</span>
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-medium">{user.username}</span>
+                <span className={`px-2 py-0.5 rounded text-xs font-medium ${
+                  user.role === 'admin'
+                    ? 'bg-red-500/20 text-red-400 border border-red-500/30'
+                    : 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
+                }`}>
+                  {user.role === 'admin' ? 'Admin' : 'Analyst'}
+                </span>
+              </div>
               <Button variant="ghost" size="icon" onClick={handleLogout} title="Logout">
                 <LogOut className="h-4 w-4" />
               </Button>

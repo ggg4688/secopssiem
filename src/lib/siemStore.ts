@@ -47,7 +47,7 @@ export const useSIEMStore = create<SIEMState>((set, get) => ({
     alerts: state.alerts.map(a =>
       a.id === alertId ? {
         ...a,
-        status: 'investigating' as AlertStatus,
+        status: 'acknowledged' as AlertStatus,
         acknowledgedAt: new Date(),
         assignee: 'analyst1',
       } : a

@@ -41,7 +41,12 @@ export function IncidentsView() {
         const StatusIcon = statusIcons[incident.status];
 
         return (
-          <Card key={incident.id} className="p-4">
+          <Card key={incident.id} className={`p-4 border-l-4 ${
+            incident.severity === 'critical' ? 'border-l-red-500' :
+            incident.severity === 'high' ? 'border-l-orange-500' :
+            incident.severity === 'medium' ? 'border-l-yellow-500' :
+            'border-l-green-500'
+          }`}>
             <div className="flex items-start justify-between mb-4">
               <div className="flex items-center gap-3">
                 <div className={`p-2 rounded-lg ${statusColors[incident.status]}/20`}>
