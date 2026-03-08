@@ -95,8 +95,19 @@ function formatDateTime(d: Date) {
 }
 
 export function ThreatIntel() {
+  const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState('ioc');
   const totalIOCs = mockIOCs.length;
+
+  const filteredIOCs = useMemo(() => {
+    if (!searchQuery.trim()) return mockIOCs;
+    const q = searchQuery.toLowerCase();
+    return mockIOCs.filter(ioc =>
+      ioc.indicator.toLowerCase().includes(q) ||
+      ioc.type.toLowerCase().includes(q) ||
+      ioc.source.toLowerCase().includes(q)
+    );
+  }, [searchQuery]);
   const totalFeeds = mockFeeds.length;
 
   return (
