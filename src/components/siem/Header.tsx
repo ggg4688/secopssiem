@@ -22,6 +22,7 @@ export function Header() {
     { id: 'alerts' as const, label: 'Alerts', icon: AlertTriangle, badge: newAlertsCount },
     { id: 'logs' as const, label: 'Logs', icon: Activity },
     { id: 'incidents' as const, label: 'Incidents', icon: FileText },
+    { id: 'threat-intel' as const, label: 'Threat Intel', icon: Radar },
   ];
 
   const handleLogout = () => {
