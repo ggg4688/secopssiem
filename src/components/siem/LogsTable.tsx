@@ -143,7 +143,7 @@ function LogRow({
               <h4 className="text-xs text-muted-foreground uppercase tracking-wide mb-2">Details</h4>
               <div className="grid grid-cols-3 gap-2">
                 {Object.entries(log.details).map(([key, value]) => (
-                  value && <DetailItem key={key} label={key} value={value} />
+                  value && <DetailItem key={key} label={key} value={String(value)} />
                 ))}
               </div>
             </div>
