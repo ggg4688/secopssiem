@@ -1,9 +1,10 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Database, Rss, GitBranch, Globe, Mail, FileDigit, Server } from 'lucide-react';
+import { Database, Rss, GitBranch, Globe, Mail, FileDigit, Server, Search } from 'lucide-react';
 
 // IOC Mock Data
 type IOCType = 'IP Address' | 'Domain' | 'File Hash' | 'Email';
