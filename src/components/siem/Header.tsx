@@ -1,13 +1,19 @@
 import { useSIEMStore } from '@/lib/siemStore';
+import { logout, getAuthUser } from '@/lib/auth';
+import { useNavigate } from 'react-router-dom';
+import { useTheme } from 'next-themes';
 import { Button } from '@/components/ui/button';
 import {
   Shield, Activity, AlertTriangle, FileText, RefreshCw,
-  LayoutDashboard, Clock
+  LayoutDashboard, Clock, LogOut, Sun, Moon
 } from 'lucide-react';
 import { format } from 'date-fns';
 
 export function Header() {
   const { activeTab, setActiveTab, refreshData, alerts } = useSIEMStore();
+  const navigate = useNavigate();
+  const { theme, setTheme } = useTheme();
+  const user = getAuthUser();
 
   const newAlertsCount = alerts.filter(a => a.status === 'new').length;
   const criticalCount = alerts.filter(a => a.severity === 'critical' && a.status !== 'closed').length;
@@ -18,6 +24,11 @@ export function Header() {
     { id: 'logs' as const, label: 'Logs', icon: Activity },
     { id: 'incidents' as const, label: 'Incidents', icon: FileText },
   ];
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login', { replace: true });
+  };
 
   return (
     <header className="bg-card border-b border-border px-6 py-3">
@@ -68,6 +79,24 @@ export function Header() {
             <RefreshCw className="h-4 w-4 mr-2" />
             Refresh
           </Button>
+
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+            title="Toggle theme"
+          >
+            {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+          </Button>
+
+          {user && (
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-muted-foreground">{user.username}</span>
+              <Button variant="ghost" size="icon" onClick={handleLogout} title="Logout">
+                <LogOut className="h-4 w-4" />
+              </Button>
+            </div>
+          )}
         </div>
       </div>
     </header>
