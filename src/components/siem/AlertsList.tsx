@@ -132,6 +132,7 @@ function AlertCard({
 function InvestigationPanel({ alert, onClose }: { alert: Alert; onClose: () => void }) {
   const {
     acknowledgeAlert,
+    updateAlertStatus,
     escalateToIncident,
     closeAlert,
     simulateBlockIP,
