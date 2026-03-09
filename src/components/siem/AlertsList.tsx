@@ -2,23 +2,68 @@ import { useSIEMStore } from '@/lib/siemStore';
 import { Alert, AlertStatus, Severity } from '@/lib/mockData';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { SeverityBadge, StatusBadge, MitreBadge, ConfidenceMeter, AssetTypeIcon, CriticalityBadge } from './Badges';
 import {
   Shield, Clock, User, Globe, Server, ChevronRight,
-  CheckCircle, AlertTriangle, Ban, UserX, FileText, X, Search
+  CheckCircle, AlertTriangle, Ban, UserX, FileText, X, Search, Filter
 } from 'lucide-react';
-import { format } from 'date-fns';
-import { useState } from 'react';
+import { format, subHours, subDays, isAfter } from 'date-fns';
+import { useState, useMemo } from 'react';
+
+type TimeRange = '1h' | '24h' | '7d' | 'all';
 
 export function AlertsList() {
   const { alerts, selectedAlertId, selectAlert } = useSIEMStore();
+  
+  // Filter states
+  const [severityFilter, setSeverityFilter] = useState<Severity | 'all'>('all');
   const [statusFilter, setStatusFilter] = useState<AlertStatus | 'all'>('all');
+  const [assetFilter, setAssetFilter] = useState<string>('all');
+  const [mitreFilter, setMitreFilter] = useState<string>('all');
+  const [timeRange, setTimeRange] = useState<TimeRange>('all');
 
-  const filteredAlerts = alerts.filter(a =>
-    statusFilter === 'all' || a.status === statusFilter
+  // Get unique values for filters
+  const uniqueAssets = useMemo(() => 
+    [...new Set(alerts.map(a => a.asset.name))].sort(), 
+    [alerts]
+  );
+  
+  const uniqueMitreTechniques = useMemo(() => 
+    [...new Map(alerts.map(a => [a.mitre.techniqueId, a.mitre])).values()].sort((a, b) => a.techniqueId.localeCompare(b.techniqueId)),
+    [alerts]
   );
 
+  const filteredAlerts = useMemo(() => {
+    const now = new Date();
+    let timeThreshold: Date | null = null;
+    
+    if (timeRange === '1h') timeThreshold = subHours(now, 1);
+    else if (timeRange === '24h') timeThreshold = subHours(now, 24);
+    else if (timeRange === '7d') timeThreshold = subDays(now, 7);
+
+    return alerts.filter(a => {
+      if (severityFilter !== 'all' && a.severity !== severityFilter) return false;
+      if (statusFilter !== 'all' && a.status !== statusFilter) return false;
+      if (assetFilter !== 'all' && a.asset.name !== assetFilter) return false;
+      if (mitreFilter !== 'all' && a.mitre.techniqueId !== mitreFilter) return false;
+      if (timeThreshold && !isAfter(a.timestamp, timeThreshold)) return false;
+      return true;
+    });
+  }, [alerts, severityFilter, statusFilter, assetFilter, mitreFilter, timeRange]);
+
   const selectedAlert = alerts.find(a => a.id === selectedAlertId);
+
+  const clearFilters = () => {
+    setSeverityFilter('all');
+    setStatusFilter('all');
+    setAssetFilter('all');
+    setMitreFilter('all');
+    setTimeRange('all');
+  };
+
+  const hasActiveFilters = severityFilter !== 'all' || statusFilter !== 'all' || assetFilter !== 'all' || mitreFilter !== 'all' || timeRange !== 'all';
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 h-full">
@@ -28,30 +73,109 @@ export function AlertsList() {
           <Shield className="h-5 w-5 text-primary" />
           <h2 className="text-lg font-semibold">Alerts</h2>
           <span className="text-sm text-muted-foreground">({filteredAlerts.length})</span>
-          <div className="ml-auto flex gap-1">
-            {(['all', 'new', 'acknowledged', 'investigating', 'incident', 'closed'] as const).map((status) => (
-              <Button
-                key={status}
-                variant={statusFilter === status ? 'default' : 'ghost'}
-                size="sm"
-                onClick={() => setStatusFilter(status)}
-                className="text-xs"
-              >
-                {status === 'all' ? 'All' : status.charAt(0).toUpperCase() + status.slice(1)}
+        </div>
+
+        {/* Filter Controls */}
+        <div className="siem-panel mb-4">
+          <div className="flex items-center gap-2 mb-3">
+            <Filter className="h-4 w-4 text-muted-foreground" />
+            <span className="text-sm font-medium">Filters</span>
+            {hasActiveFilters && (
+              <Button variant="ghost" size="sm" onClick={clearFilters} className="ml-auto text-xs h-6">
+                Clear all
               </Button>
-            ))}
+            )}
+          </div>
+          
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2">
+            {/* Severity Filter */}
+            <Select value={severityFilter} onValueChange={(v) => setSeverityFilter(v as Severity | 'all')}>
+              <SelectTrigger className="h-8 text-xs">
+                <SelectValue placeholder="Severity" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Severities</SelectItem>
+                <SelectItem value="critical">Critical</SelectItem>
+                <SelectItem value="high">High</SelectItem>
+                <SelectItem value="medium">Medium</SelectItem>
+                <SelectItem value="low">Low</SelectItem>
+              </SelectContent>
+            </Select>
+
+            {/* Status Filter */}
+            <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as AlertStatus | 'all')}>
+              <SelectTrigger className="h-8 text-xs">
+                <SelectValue placeholder="Status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Statuses</SelectItem>
+                <SelectItem value="new">New</SelectItem>
+                <SelectItem value="acknowledged">Acknowledged</SelectItem>
+                <SelectItem value="investigating">Investigating</SelectItem>
+                <SelectItem value="incident">Incident</SelectItem>
+                <SelectItem value="closed">Closed</SelectItem>
+              </SelectContent>
+            </Select>
+
+            {/* Asset Filter */}
+            <Select value={assetFilter} onValueChange={setAssetFilter}>
+              <SelectTrigger className="h-8 text-xs">
+                <SelectValue placeholder="Asset" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Assets</SelectItem>
+                {uniqueAssets.map(asset => (
+                  <SelectItem key={asset} value={asset}>{asset}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            {/* MITRE Technique Filter */}
+            <Select value={mitreFilter} onValueChange={setMitreFilter}>
+              <SelectTrigger className="h-8 text-xs">
+                <SelectValue placeholder="MITRE" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Techniques</SelectItem>
+                {uniqueMitreTechniques.map(mitre => (
+                  <SelectItem key={mitre.techniqueId} value={mitre.techniqueId}>
+                    {mitre.techniqueId}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            {/* Time Range Filter */}
+            <Select value={timeRange} onValueChange={(v) => setTimeRange(v as TimeRange)}>
+              <SelectTrigger className="h-8 text-xs">
+                <SelectValue placeholder="Time" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Time</SelectItem>
+                <SelectItem value="1h">Last 1 hour</SelectItem>
+                <SelectItem value="24h">Last 24 hours</SelectItem>
+                <SelectItem value="7d">Last 7 days</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
         </div>
 
         <div className="space-y-2 flex-1 overflow-y-auto scrollbar-thin">
-          {filteredAlerts.map((alert) => (
-            <AlertCard
-              key={alert.id}
-              alert={alert}
-              isSelected={selectedAlertId === alert.id}
-              onClick={() => selectAlert(alert.id)}
-            />
-          ))}
+          {filteredAlerts.length === 0 ? (
+            <div className="text-center py-8 text-muted-foreground">
+              <Shield className="h-8 w-8 mx-auto mb-2 opacity-50" />
+              <p className="text-sm">No alerts match the current filters</p>
+            </div>
+          ) : (
+            filteredAlerts.map((alert) => (
+              <AlertCard
+                key={alert.id}
+                alert={alert}
+                isSelected={selectedAlertId === alert.id}
+                onClick={() => selectAlert(alert.id)}
+              />
+            ))
+          )}
         </div>
       </Card>
 
