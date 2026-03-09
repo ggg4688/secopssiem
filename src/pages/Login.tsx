@@ -5,22 +5,26 @@ import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
-import { Shield, LogIn } from 'lucide-react';
+import { Shield, LogIn, Loader2 } from 'lucide-react';
 
 export default function Login() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-    const user = login(username, password);
-    if (user) {
+    setLoading(true);
+    try {
+      await login(username, password);
       navigate('/dashboard', { replace: true });
-    } else {
-      setError('Invalid username or password');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Login failed');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -41,6 +45,7 @@ export default function Login() {
               onChange={(e) => setUsername(e.target.value)}
               placeholder="Enter username"
               autoComplete="username"
+              disabled={loading}
             />
           </div>
           <div className="space-y-2">
@@ -52,6 +57,7 @@ export default function Login() {
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Enter password"
               autoComplete="current-password"
+              disabled={loading}
             />
           </div>
 
@@ -59,15 +65,15 @@ export default function Login() {
             <p className="text-sm text-destructive">{error}</p>
           )}
 
-          <Button type="submit" className="w-full">
-            <LogIn className="h-4 w-4 mr-2" />
-            Sign In
+          <Button type="submit" className="w-full" disabled={loading || !username || !password}>
+            {loading ? (
+              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+            ) : (
+              <LogIn className="h-4 w-4 mr-2" />
+            )}
+            {loading ? 'Signing in…' : 'Sign In'}
           </Button>
         </form>
-
-        <p className="text-xs text-muted-foreground text-center mt-4">
-          Demo: admin/admin or user/user
-        </p>
       </Card>
     </div>
   );
