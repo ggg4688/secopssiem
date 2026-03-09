@@ -8,7 +8,11 @@ import {
   LayoutDashboard, LogOut, Sun, Moon, Radar
 } from 'lucide-react';
 
-export function Header() {
+interface HeaderProps {
+  wsStatusSlot?: React.ReactNode;
+}
+
+export function Header({ wsStatusSlot }: HeaderProps) {
   const { activeTab, setActiveTab, refreshData, alerts } = useSIEMStore();
   const navigate = useNavigate();
   const { theme, setTheme } = useTheme();
