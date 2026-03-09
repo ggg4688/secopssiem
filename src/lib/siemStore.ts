@@ -23,6 +23,7 @@ interface SIEMState {
   simulateBlockIP: (alertId: string) => void;
   simulateDisableUser: (alertId: string) => void;
   addTimelineEvent: (alertId: string, description: string) => void;
+  updateIncidentStatus: (incidentId: string, status: Incident['status']) => void;
   refreshData: () => void;
   /** Push a single alert received via WebSocket into the store */
   addAlert: (alert: Alert) => void;
@@ -136,6 +137,12 @@ export const useSIEMStore = create<SIEMState>((set, get) => ({
           type: 'action' as const,
         }],
       } : a
+    ),
+  })),
+
+  updateIncidentStatus: (incidentId, status) => set((state) => ({
+    incidents: state.incidents.map(i =>
+      i.id === incidentId ? { ...i, status, updatedAt: new Date() } : i
     ),
   })),
 
