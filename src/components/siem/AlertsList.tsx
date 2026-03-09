@@ -262,9 +262,40 @@ function InvestigationPanel({ alert, onClose }: { alert: Alert; onClose: () => v
     updateAlertStatus,
     escalateToIncident,
     closeAlert,
-    simulateBlockIP,
-    simulateDisableUser,
+    addTimelineEvent,
   } = useSIEMStore();
+
+  const [ticketOpen, setTicketOpen] = useState(false);
+  const [playbookOpen, setPlaybookOpen] = useState(false);
+  const [blockingIP, setBlockingIP] = useState(false);
+  const [disablingUser, setDisablingUser] = useState(false);
+
+  const handleBlockIP = async () => {
+    setBlockingIP(true);
+    try {
+      await api.post('/api/actions/block-ip', { ip: alert.sourceIp });
+      toast({ title: 'IP blocked' });
+      addTimelineEvent(alert.id, 'IP blocked by analyst');
+    } catch {
+      toast({ title: 'Failed to block IP', variant: 'destructive' });
+    } finally {
+      setBlockingIP(false);
+    }
+  };
+
+  const handleDisableUser = async () => {
+    if (!alert.user) return;
+    setDisablingUser(true);
+    try {
+      await api.post('/api/actions/disable-user', { username: alert.user });
+      toast({ title: 'User disabled' });
+      addTimelineEvent(alert.id, 'User account disabled');
+    } catch {
+      toast({ title: 'Failed to disable user', variant: 'destructive' });
+    } finally {
+      setDisablingUser(false);
+    }
+  };
 
   return (
     <Card className="p-4 flex flex-col overflow-hidden">
@@ -385,25 +416,27 @@ function InvestigationPanel({ alert, onClose }: { alert: Alert; onClose: () => v
             <Button
               variant="outline"
               size="sm"
-              onClick={() => simulateBlockIP(alert.id)}
+              onClick={handleBlockIP}
+              disabled={blockingIP}
               className="justify-start"
             >
               <Ban className="h-4 w-4 mr-2" />
-              Block IP
+              {blockingIP ? 'Blocking…' : 'Block IP'}
             </Button>
             <Button
               variant="outline"
               size="sm"
-              onClick={() => simulateDisableUser(alert.id)}
+              onClick={handleDisableUser}
+              disabled={!alert.user || disablingUser}
               className="justify-start"
-              disabled={!alert.user}
             >
               <UserX className="h-4 w-4 mr-2" />
-              Disable User
+              {disablingUser ? 'Disabling…' : 'Disable User'}
             </Button>
             <Button
               variant="outline"
               size="sm"
+              onClick={() => setTicketOpen(true)}
               className="justify-start"
             >
               <FileText className="h-4 w-4 mr-2" />
@@ -412,11 +445,23 @@ function InvestigationPanel({ alert, onClose }: { alert: Alert; onClose: () => v
             <Button
               variant="outline"
               size="sm"
+              onClick={() => setPlaybookOpen(true)}
               className="justify-start"
             >
-              <Shield className="h-4 w-4 mr-2" />
+              <Play className="h-4 w-4 mr-2" />
               Run Playbook
             </Button>
+            {alert.status !== 'closed' && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => closeAlert(alert.id, 'False positive')}
+                className="justify-start col-span-2 sm:col-span-1"
+              >
+                <X className="h-4 w-4 mr-2" />
+                Close
+              </Button>
+            )}
           </div>
         </div>
       </div>
@@ -445,16 +490,24 @@ function InvestigationPanel({ alert, onClose }: { alert: Alert; onClose: () => v
             Escalate
           </Button>
         )}
-        {alert.status !== 'closed' && (
-          <Button
-            variant="outline"
-            onClick={() => closeAlert(alert.id, 'False positive')}
-            className="flex-1"
-          >
-            Close
-          </Button>
-        )}
       </div>
+
+      {/* Modals */}
+      <CreateTicketModal
+        open={ticketOpen}
+        onClose={() => setTicketOpen(false)}
+        alertId={alert.id}
+        defaultAsset={alert.asset.name}
+        defaultTitle={`Incident: ${alert.title}`}
+        defaultSeverity={alert.severity}
+        onSuccess={() => addTimelineEvent(alert.id, 'Incident ticket created by analyst')}
+      />
+      <RunPlaybookModal
+        open={playbookOpen}
+        onClose={() => setPlaybookOpen(false)}
+        alertId={alert.id}
+        onSuccess={() => addTimelineEvent(alert.id, 'Playbook executed')}
+      />
     </Card>
   );
 }
