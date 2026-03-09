@@ -140,6 +140,12 @@ export const useSIEMStore = create<SIEMState>((set, get) => ({
     ),
   })),
 
+  updateIncidentStatus: (incidentId, status) => set((state) => ({
+    incidents: state.incidents.map(i =>
+      i.id === incidentId ? { ...i, status, updatedAt: new Date() } : i
+    ),
+  })),
+
   refreshData: () => {
     const newAlerts = generateAlerts(15);
     set({
