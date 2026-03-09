@@ -1,3 +1,4 @@
+import React from 'react';
 import { useSIEMStore } from '@/lib/siemStore';
 import { logout, getAuthUser } from '@/lib/auth';
 import { useNavigate } from 'react-router-dom';
@@ -8,7 +9,11 @@ import {
   LayoutDashboard, LogOut, Sun, Moon, Radar
 } from 'lucide-react';
 
-export function Header() {
+interface HeaderProps {
+  wsStatusSlot?: React.ReactNode;
+}
+
+export function Header({ wsStatusSlot }: HeaderProps) {
   const { activeTab, setActiveTab, refreshData, alerts } = useSIEMStore();
   const navigate = useNavigate();
   const { theme, setTheme } = useTheme();
@@ -61,6 +66,8 @@ export function Header() {
         </div>
 
         <div className="flex items-center gap-4">
+          {wsStatusSlot}
+
           {criticalCount > 0 && (
             <div className="flex items-center gap-2 px-3 py-1.5 bg-destructive/20 border border-destructive/30 rounded-lg animate-pulse">
               <AlertTriangle className="h-4 w-4 text-destructive" />

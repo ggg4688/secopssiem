@@ -12,7 +12,7 @@ interface SIEMState {
   metrics: SOCMetrics;
   selectedAlertId: string | null;
   activeTab: 'dashboard' | 'logs' | 'alerts' | 'incidents' | 'threat-intel';
-  
+
   // Actions
   setActiveTab: (tab: SIEMState['activeTab']) => void;
   selectAlert: (id: string | null) => void;
@@ -23,6 +23,8 @@ interface SIEMState {
   simulateBlockIP: (alertId: string) => void;
   simulateDisableUser: (alertId: string) => void;
   refreshData: () => void;
+  /** Push a single alert received via WebSocket into the store */
+  addAlert: (alert: Alert) => void;
 }
 
 export const useSIEMStore = create<SIEMState>((set, get) => ({
@@ -131,4 +133,19 @@ export const useSIEMStore = create<SIEMState>((set, get) => ({
       metrics: generateSOCMetrics(newAlerts),
     });
   },
+
+  addAlert: (alert) => set((state) => {
+    // Avoid duplicate alerts (by id)
+    if (state.alerts.some((a) => a.id === alert.id)) return state;
+
+    const updatedAlerts = [alert, ...state.alerts];
+
+    // Recompute metrics so KPI cards and charts stay accurate
+    const updatedMetrics = generateSOCMetrics(updatedAlerts);
+
+    return {
+      alerts: updatedAlerts,
+      metrics: updatedMetrics,
+    };
+  }),
 }));
