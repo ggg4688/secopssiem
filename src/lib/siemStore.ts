@@ -23,6 +23,7 @@ interface SIEMState {
   simulateBlockIP: (alertId: string) => void;
   simulateDisableUser: (alertId: string) => void;
   addTimelineEvent: (alertId: string, description: string) => void;
+  updateIncidentStatus: (incidentId: string, status: Incident['status']) => void;
   refreshData: () => void;
   /** Push a single alert received via WebSocket into the store */
   addAlert: (alert: Alert) => void;
