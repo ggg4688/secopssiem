@@ -22,6 +22,7 @@ interface SIEMState {
   closeAlert: (alertId: string, reason: string) => void;
   simulateBlockIP: (alertId: string) => void;
   simulateDisableUser: (alertId: string) => void;
+  addTimelineEvent: (alertId: string, description: string) => void;
   refreshData: () => void;
   /** Push a single alert received via WebSocket into the store */
   addAlert: (alert: Alert) => void;
@@ -118,6 +119,20 @@ export const useSIEMStore = create<SIEMState>((set, get) => ({
           id: `${Date.now()}`,
           timestamp: new Date(),
           description: `Response action: Disabled user account "${a.user}"`,
+          type: 'action' as const,
+        }],
+      } : a
+    ),
+  })),
+
+  addTimelineEvent: (alertId, description) => set((state) => ({
+    alerts: state.alerts.map(a =>
+      a.id === alertId ? {
+        ...a,
+        timeline: [...a.timeline, {
+          id: `${Date.now()}`,
+          timestamp: new Date(),
+          description,
           type: 'action' as const,
         }],
       } : a
