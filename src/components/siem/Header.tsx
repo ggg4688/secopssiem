@@ -1,3 +1,4 @@
+import React from 'react';
 import { useSIEMStore } from '@/lib/siemStore';
 import { logout, getAuthUser } from '@/lib/auth';
 import { useNavigate } from 'react-router-dom';
