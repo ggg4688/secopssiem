@@ -25,17 +25,23 @@ export function useAlertsWebSocket() {
   const connect = useCallback(() => {
     if (unmounted.current) return;
 
-    // Append token as query param so the backend can authenticate the WS
-    const token = getToken();
-    const url = token ? `${WS_URL}?token=${token}` : WS_URL;
-
     setStatus('connecting');
 
-    const ws = new WebSocket(url);
+    // Connect without token in the URL to avoid JWT exposure in server/proxy logs.
+    // Authentication is performed via a post-connect message frame instead.
+    const ws = new WebSocket(WS_URL);
     wsRef.current = ws;
 
     ws.onopen = () => {
       if (unmounted.current) { ws.close(); return; }
+
+      // Send auth frame immediately after connection — backend should withhold
+      // processing until this frame is received and validated.
+      const token = getToken();
+      if (token) {
+        ws.send(JSON.stringify({ type: 'auth', token }));
+      }
+
       reconnectAttempts.current = 0;
       setStatus('connected');
     };
