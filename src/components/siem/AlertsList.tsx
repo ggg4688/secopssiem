@@ -333,26 +333,42 @@ function InvestigationPanel({ alert, onClose }: { alert: Alert; onClose: () => v
 
         {/* Attack Timeline */}
         <div className="siem-panel">
-          <h4 className="text-xs text-muted-foreground uppercase tracking-wide mb-3">Attack Timeline</h4>
+          <h4 className="text-xs text-muted-foreground uppercase tracking-wide mb-3">Investigation Timeline</h4>
           <div className="space-y-0">
             {alert.timeline.map((event, index) => (
               <div key={event.id} className="flex gap-3">
                 <div className="flex flex-col items-center">
                   <div className={`w-3 h-3 rounded-full border-2 ${
-                    event.type === 'alert' ? 'bg-red-500 border-red-500' :
+                    event.type === 'alert' ? 'bg-destructive border-destructive' :
                     event.type === 'action' ? 'bg-green-500 border-green-500' :
                     event.type === 'threshold' ? 'bg-yellow-500 border-yellow-500' :
-                    'bg-background border-primary'
+                    'bg-primary/50 border-primary'
                   }`} />
                   {index < alert.timeline.length - 1 && (
-                    <div className="w-0.5 h-8 bg-border" />
+                    <div className="w-0.5 h-10 bg-border" />
                   )}
                 </div>
-                <div className="pb-4">
-                  <p className="text-sm">{event.description}</p>
-                  <p className="text-xs text-muted-foreground">
-                    {format(event.timestamp, 'HH:mm:ss')}
-                  </p>
+                <div className="pb-4 flex-1">
+                  <div className="flex items-start justify-between gap-2">
+                    <p className="text-sm">{event.description}</p>
+                    <span className={`text-[10px] px-1.5 py-0.5 rounded font-medium ${
+                      event.type === 'alert' ? 'bg-destructive/20 text-destructive' :
+                      event.type === 'action' ? 'bg-green-500/20 text-green-400' :
+                      event.type === 'threshold' ? 'bg-yellow-500/20 text-yellow-400' :
+                      'bg-primary/20 text-primary'
+                    }`}>
+                      {event.type}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-3 mt-1">
+                    <span className="text-xs text-muted-foreground font-mono">
+                      {format(event.timestamp, 'HH:mm:ss')}
+                    </span>
+                    <span className="text-xs text-muted-foreground flex items-center gap-1">
+                      <Server className="h-3 w-3" />
+                      {alert.asset.name}
+                    </span>
+                  </div>
                 </div>
               </div>
             ))}
