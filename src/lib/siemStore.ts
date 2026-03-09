@@ -133,4 +133,19 @@ export const useSIEMStore = create<SIEMState>((set, get) => ({
       metrics: generateSOCMetrics(newAlerts),
     });
   },
+
+  addAlert: (alert) => set((state) => {
+    // Avoid duplicate alerts (by id)
+    if (state.alerts.some((a) => a.id === alert.id)) return state;
+
+    const updatedAlerts = [alert, ...state.alerts];
+
+    // Recompute metrics so KPI cards and charts stay accurate
+    const updatedMetrics = generateSOCMetrics(updatedAlerts);
+
+    return {
+      alerts: updatedAlerts,
+      metrics: updatedMetrics,
+    };
+  }),
 }));
