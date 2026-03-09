@@ -125,6 +125,20 @@ export const useSIEMStore = create<SIEMState>((set, get) => ({
     ),
   })),
 
+  addTimelineEvent: (alertId, description) => set((state) => ({
+    alerts: state.alerts.map(a =>
+      a.id === alertId ? {
+        ...a,
+        timeline: [...a.timeline, {
+          id: `${Date.now()}`,
+          timestamp: new Date(),
+          description,
+          type: 'action' as const,
+        }],
+      } : a
+    ),
+  })),
+
   refreshData: () => {
     const newAlerts = generateAlerts(15);
     set({
