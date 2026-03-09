@@ -2,15 +2,18 @@ import { useSIEMStore } from '@/lib/siemStore';
 import { Alert, AlertStatus, Severity } from '@/lib/mockData';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { SeverityBadge, StatusBadge, MitreBadge, ConfidenceMeter, AssetTypeIcon, CriticalityBadge } from './Badges';
 import {
   Shield, Clock, User, Globe, Server, ChevronRight,
-  CheckCircle, AlertTriangle, Ban, UserX, FileText, X, Search, Filter
+  CheckCircle, AlertTriangle, Ban, UserX, FileText, X, Search, Filter, Play
 } from 'lucide-react';
 import { format, subHours, subDays, isAfter } from 'date-fns';
 import { useState, useMemo } from 'react';
+import { api } from '@/lib/api';
+import { toast } from '@/hooks/use-toast';
+import { CreateTicketModal } from './CreateTicketModal';
+import { RunPlaybookModal } from './RunPlaybookModal';
 
 type TimeRange = '1h' | '24h' | '7d' | 'all';
 
