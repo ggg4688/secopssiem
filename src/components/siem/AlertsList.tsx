@@ -33,10 +33,14 @@ export function AlertsList() {
     [alerts]
   );
   
-  const uniqueMitreTechniques = useMemo(() => 
-    [...new Map(alerts.map(a => [a.mitre.techniqueId, a.mitre])).values()].sort((a, b) => a.techniqueId.localeCompare(b.techniqueId)),
-    [alerts]
-  );
+const uniqueMitreTechniques = useMemo(() =>
+  [...new Map(
+    alerts
+      .filter(a => a.mitre && a.mitre.techniqueId)
+      .map(a => [a.mitre!.techniqueId, a.mitre])
+  ).values()].sort((a, b) => a.techniqueId.localeCompare(b.techniqueId)),
+  [alerts]
+);
 
   const filteredAlerts = useMemo(() => {
     const now = new Date();
@@ -50,7 +54,7 @@ export function AlertsList() {
       if (severityFilter !== 'all' && a.severity !== severityFilter) return false;
       if (statusFilter !== 'all' && a.status !== statusFilter) return false;
       if (assetFilter !== 'all' && a.asset.name !== assetFilter) return false;
-      if (mitreFilter !== 'all' && a.mitre.techniqueId !== mitreFilter) return false;
+      if (mitreFilter !== 'all' && a.mitre?.techniqueId !== mitreFilter) return false;
       if (timeThreshold && !isAfter(a.timestamp, timeThreshold)) return false;
       return true;
     });
@@ -247,7 +251,12 @@ function AlertCard({
 
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <MitreBadge techniqueId={alert.mitre.techniqueId} techniqueName={alert.mitre.techniqueName} />
+          {alert.mitre && (
+  <MitreBadge
+    techniqueId={alert.mitre.techniqueId}
+    techniqueName={alert.mitre.techniqueName}
+  />
+)}
           <span className="text-xs text-muted-foreground font-mono">{alert.confidence}%</span>
         </div>
         <ChevronRight className="h-4 w-4 text-muted-foreground" />
@@ -335,9 +344,17 @@ function InvestigationPanel({ alert, onClose }: { alert: Alert; onClose: () => v
         <div className="siem-panel">
           <h4 className="text-xs text-muted-foreground uppercase tracking-wide mb-2">Threat Classification</h4>
           <div className="flex items-center gap-3">
-            <MitreBadge techniqueId={alert.mitre.techniqueId} techniqueName={alert.mitre.techniqueName} showLink />
+            {alert.mitre && (
+  <MitreBadge
+    techniqueId={alert.mitre.techniqueId}
+    techniqueName={alert.mitre.techniqueName}
+    showLink
+  />
+)}
           </div>
-          <p className="text-sm text-muted-foreground mt-1">{alert.mitre.tactic}</p>
+          <p className="text-sm text-muted-foreground mt-1">
+  {alert.mitre?.tactic ?? "Unknown technique"}
+</p>
         </div>
 
         {/* Asset Information */}
