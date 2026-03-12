@@ -52,7 +52,7 @@ export async function login(
   const body = new URLSearchParams({ username, password });
 
   const res = await fetch(
-    `${import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8000'}/auth/login`,
+    `${import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8000'}/api/login`,
     {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
